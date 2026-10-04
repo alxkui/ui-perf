@@ -28,7 +28,7 @@ Unlike traditional API-only performance tools (k6, Locust, JMeter), **ui-perf** 
    - Built-in aggregator calculates true global percentiles (**min, max, avg, p50, p90, p95, p99**), fleet throughput (RPS), Web Vitals (LCP, FCP, TTFB, CLS), and generates a standalone interactive HTML dashboard.
 
 6. **Native Developer Experience**
-   - Install via `npm install ui-perf playwright`.
+   - Install via `npm install @alxkui/ui-perf playwright`.
    - Write standard, intuitive Playwright scripts wrapped in named `step()` timers.
 
 ---
@@ -38,14 +38,14 @@ Unlike traditional API-only performance tools (k6, Locust, JMeter), **ui-perf** 
 ### 1. Installation
 
 ```bash
-npm install ui-perf playwright
+npm install @alxkui/ui-perf playwright
 npx playwright install chromium
 ```
 
 ### 2. Initialize Starter Files
 
 ```bash
-npx ui-perf init
+npx @alxkui/ui-perf init
 ```
 
 This creates:
