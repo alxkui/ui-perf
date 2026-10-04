@@ -4,6 +4,16 @@ on:
   release:
     types: [published]
   workflow_dispatch:
+    inputs:
+      tag:
+        description: 'npm dist-tag (e.g. alpha, beta, latest)'
+        required: true
+        default: 'alpha'
+        type: choice
+        options:
+          - alpha
+          - beta
+          - latest
 
 jobs:
   build-and-publish:
@@ -19,7 +29,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          registry-url: "https://registry.npmjs.org"
+          registry-url: 'https://registry.npmjs.org'
+          scope: '@alxkui'
 
       - name: Install dependencies
         run: npm ci
@@ -28,6 +39,31 @@ jobs:
         run: npm run build
 
       - name: Publish to npm
-        run: npm publish --access public
+        run: |
+          if [ -z "${NODE_AUTH_TOKEN}" ]; then
+            echo "::error::NPM_TOKEN secret is missing or empty! Please add it in Repository Settings -> Secrets and variables -> Actions."
+            exit 1
+          fi
+
+          # 1. Determine the appropriate npm dist-tag
+          if [ -n "${{ inputs.tag }}" ]; then
+            TAG="${{ inputs.tag }}"
+          elif [[ "${{ github.event.release.tag_name }}" == *"alpha"* ]]; then
+            TAG="alpha"
+          elif [[ "${{ github.event.release.tag_name }}" == *"beta"* ]]; then
+            TAG="beta"
+          elif [[ "${{ github.event.release.prerelease }}" == "true" ]]; then
+            TAG="next"
+          else
+            TAG="latest"
+          fi
+
+          echo "==> Publishing @alxkui/ui-perf with tag: ${TAG}"
+
+          # 2. Configure auth token explicitly for registry
+          npm config set //registry.npmjs.org/:_authToken "${NODE_AUTH_TOKEN}"
+
+          # 3. Publish package
+          npm publish --access public --tag "${TAG}" --provenance
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
