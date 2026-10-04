@@ -1,5 +1,5 @@
 {
-  "name": "ui-perf",
+  "name": "@alxkui/ui-perf",
   "version": "0.1.0",
   "description": "High-scale, distributed UI performance testing tool powered by Playwright",
   "main": "dist/index.js",
