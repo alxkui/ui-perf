@@ -1,0 +1,39 @@
+{
+  "name": "ui-perf",
+  "version": "0.1.0",
+  "description": "High-scale, distributed UI performance testing tool powered by Playwright",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "ui-perf": "./dist/cli/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test:small": "tsx examples/small-load/run-test.ts"
+  },
+  "keywords": [
+    "playwright",
+    "performance",
+    "load-testing",
+    "ui-performance",
+    "distributed",
+    "stress-testing"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "commander": "^12.1.0",
+    "picocolors": "^1.1.0",
+    "playwright": "^1.48.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.7.5",
+    "tsup": "^8.3.0",
+    "tsx": "^4.19.1",
+    "typescript": "^5.6.3"
+  }
+}

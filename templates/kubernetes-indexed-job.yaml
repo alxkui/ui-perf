@@ -1,0 +1,43 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: ui-perf-load-test
+  labels:
+    app: ui-perf
+spec:
+  completions: 20       # Total 20 pods
+  parallelism: 20       # 20 concurrent pods (e.g. 25 VUs per pod = 500 VUs)
+  completionMode: Indexed
+  backoffLimit: 0
+  template:
+    metadata:
+      name: ui-perf-worker
+    spec:
+      restartPolicy: Never
+      volumes:
+        - name: shared-results
+          persistentVolumeClaim:
+            claimName: ui-perf-results-pvc
+      containers:
+        - name: worker
+          image: my-registry/ui-perf-suite:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            # Kubernetes automatically sets JOB_COMPLETION_INDEX (0 to 19)
+            - name: POD_INDEX
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.annotations['batch.kubernetes.io/job-completion-index']
+            - name: TOTAL_PODS
+              value: "20"
+          resources:
+            requests:
+              cpu: "2000m"
+              memory: "4Gi"
+            limits:
+              cpu: "4000m"
+              memory: "8Gi"
+          volumeMounts:
+            - name: shared-results
+              mountPath: /app/perf-results
+          command: ["node", "dist/cli/index.js", "run", "--config", "ui-perf.config.ts"]

@@ -1,0 +1,57 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: ui-perf-distributed-run-
+spec:
+  entrypoint: distributed-perf-pipeline
+  volumes:
+    - name: shared-perf-results
+      persistentVolumeClaim:
+        claimName: ui-perf-results-pvc
+
+  templates:
+    - name: distributed-perf-pipeline
+      steps:
+        # Step 1: Run shards in parallel across multiple machines
+        - - name: run-shard
+            template: run-worker-shard
+            arguments:
+              parameters:
+                - name: shard-index
+                  value: "{{item}}"
+            withSequence:
+              count: "20" # 20 shards (0 to 19)
+
+        # Step 2: Consolidated Multi-Pod Report Generation
+        - - name: aggregate-report
+            template: run-aggregator
+
+    # Worker Shard Template
+    - name: run-worker-shard
+      inputs:
+        parameters:
+          - name: shard-index
+      container:
+        image: my-registry/ui-perf-suite:latest
+        command: ["node", "dist/cli/index.js", "run"]
+        args: ["--shard", "{{inputs.parameters.shard-index}}/20"]
+        resources:
+          requests:
+            cpu: "2000m"
+            memory: "4Gi"
+          limits:
+            cpu: "4000m"
+            memory: "8Gi"
+        volumeMounts:
+          - name: shared-perf-results
+            mountPath: /app/perf-results
+
+    # Aggregator Step Template
+    - name: run-aggregator
+      container:
+        image: my-registry/ui-perf-suite:latest
+        command: ["node", "dist/cli/index.js", "aggregate"]
+        args: ["--dir", "/app/perf-results"]
+        volumeMounts:
+          - name: shared-perf-results
+            mountPath: /app/perf-results
