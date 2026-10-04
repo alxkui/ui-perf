@@ -12,9 +12,18 @@
   ],
   "scripts": {
     "build": "tsup",
+    "prepack": "npm run build",
     "dev": "tsup --watch",
     "test:small": "tsx examples/small-load/run-test.ts"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alxkui/ui-perf.git"
+  },
+  "bugs": {
+    "url": "https://github.com/alxkui/ui-perf/issues"
+  },
+  "homepage": "https://github.com/alxkui/ui-perf#readme",
   "keywords": [
     "playwright",
     "performance",
